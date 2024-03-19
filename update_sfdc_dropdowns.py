@@ -1,0 +1,95 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
+import os
+import time
+import pandas as pd
+
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_experimental_option("detach", True)
+driver = webdriver.Chrome(options=chrome_options)
+
+username = os.environ['USERNAME']
+password = os.environ['PASSWORD']
+
+dashboard_url = 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01Z4u000001ai1AEAQ/view'
+time_for_dashboard_to_load = 25  # enter time in seconds that it will take for the dashboard to load
+# do not enter a time less than 25, or it runs into problems
+driver.get(dashboard_url)
+
+
+def delete_current_list_items():
+    current_filter_values = driver.find_element(By.CLASS_NAME, 'filter-option-list').find_elements(By.TAG_NAME,
+                                                                                                   'li')
+    for item in current_filter_values:
+        try:
+            delete = item.find_element(By.CSS_SELECTOR, 'button[title*=Remove]')
+            delete.click()
+        except StaleElementReferenceException:
+            delete_current_list_items()
+        except NoSuchElementException:
+            break
+
+
+def add_new_list_items(file_path):
+    data = pd.read_csv(file_path)
+    names = data['NAME'].tolist()
+    for name in names:
+        driver.find_element(By.ID, 'addFilterValueBtn').click()
+        input_value_field = driver.find_element(By.ID, 'undefined-input')
+        input_value_field.send_keys(name)
+        driver.find_element(By.CLASS_NAME, 'filter-apply').click()
+    confirm = input('Apply these new filters? y/n: ')
+    if confirm.lower() == 'y':
+        driver.find_element(By.ID, 'submitBtn').click()
+
+
+def update_picklist(num, filepath):
+    """num needs to equal 1 or 2: 1 if you are editing A-L and 2 if you are editing M-Z. Filepath is for the csv file
+    with the names you are uploading."""
+    num += 1
+    owner_dropdown_container = driver.find_element(By.CLASS_NAME, f'widget-container_{num}')
+    pencil_button = owner_dropdown_container.find_element(By.CSS_SELECTOR, 'button.editFilter')
+    pencil_button.send_keys(Keys.ENTER)
+    time.sleep(2)
+    pencil_button.send_keys(Keys.ENTER)
+    time.sleep(1)
+    delete_current_list_items()
+    try:
+        add_new_list_items(filepath)
+    except NoSuchElementException:
+        driver.find_element(By.CSS_SELECTOR, 'button[title=Close]').click()
+        update_picklist(num, filepath)
+
+
+# log into Salesforce
+log_in_button = driver.find_element(By.XPATH, '//*[@id="idp_section_buttons"]/button')
+log_in_button.click()
+time.sleep(2)
+username_field = driver.find_element(By.ID, 'i0116')
+username_field.send_keys(username)
+driver.find_element(By.ID, 'idSIButton9').click()
+time.sleep(2)
+password_field = driver.find_element(By.ID, 'i0118')
+password_field.send_keys(password)
+driver.find_element(By.ID, 'idSIButton9').click()
+time.sleep(time_for_dashboard_to_load)
+
+# switch iframe
+iframe = driver.find_element(By.CSS_SELECTOR, "iframe[title='dashboard']")
+driver.switch_to.frame(iframe)
+
+# edit
+driver.find_element(By.CSS_SELECTOR, 'button.edit').click()
+time.sleep(2)
+
+# update picklist 1
+update_picklist(1, "C:\\Users\\asorensen\\OneDrive - CVRx Inc\\Projects\\20240319_update_sfdc_dashboard_dropdowns\\A "
+                   "through L.csv")
+
+# update picklist 2
+update_picklist(2, "C:\\Users\\asorensen\\OneDrive - CVRx Inc\\Projects\\20240319_update_sfdc_dashboard_dropdowns\\M "
+                   "through Z.csv")
+
+print("Remember to hit save at the top of the dashboard!!")
