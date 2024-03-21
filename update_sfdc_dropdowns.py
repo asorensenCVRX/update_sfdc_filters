@@ -13,10 +13,14 @@ driver = webdriver.Chrome(options=chrome_options)
 username = os.environ['USERNAME']
 password = os.environ['PASSWORD']
 
-dashboard_url = 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01Z4u000001ai1AEAQ/view'
-time_for_dashboard_to_load = 25  # enter time in seconds that it will take for the dashboard to load
-# do not enter a time less than 25, or it runs into problems
-driver.get(dashboard_url)
+dashboard_urls = {
+    'Daily Driver': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01Z4u000000WX7lEAG/view',
+    'Regional': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01Z4u000000WX9IEAW/view?queryScope=userFolders',
+    'Regional AM Detail': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01Z4u000001OCgqEAG/view?queryScope'
+                          '=userFolders',
+    'Commercial Business Activity': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01Z4u000001ai1AEAQ/view',
+
+}
 
 
 def delete_current_list_items():
@@ -60,36 +64,45 @@ def update_picklist(num, filepath):
         add_new_list_items(filepath)
     except NoSuchElementException:
         driver.find_element(By.CSS_SELECTOR, 'button[title=Close]').click()
-        update_picklist(num, filepath)
+        update_picklist(num - 1, filepath)
 
 
-# log into Salesforce
-log_in_button = driver.find_element(By.XPATH, '//*[@id="idp_section_buttons"]/button')
-log_in_button.click()
-time.sleep(2)
-username_field = driver.find_element(By.ID, 'i0116')
-username_field.send_keys(username)
-driver.find_element(By.ID, 'idSIButton9').click()
-time.sleep(2)
-password_field = driver.find_element(By.ID, 'i0118')
-password_field.send_keys(password)
-driver.find_element(By.ID, 'idSIButton9').click()
-time.sleep(time_for_dashboard_to_load)
+def log_in():
+    log_in_button = driver.find_element(By.XPATH, '//*[@id="idp_section_buttons"]/button')
+    log_in_button.click()
+    time.sleep(2)
+    username_field = driver.find_element(By.ID, 'i0116')
+    username_field.send_keys(username)
+    driver.find_element(By.ID, 'idSIButton9').click()
+    time.sleep(2)
+    password_field = driver.find_element(By.ID, 'i0118')
+    password_field.send_keys(password)
+    driver.find_element(By.ID, 'idSIButton9').click()
+    time.sleep(25)
 
-# switch iframe
-iframe = driver.find_element(By.CSS_SELECTOR, "iframe[title='dashboard']")
-driver.switch_to.frame(iframe)
 
-# edit
-driver.find_element(By.CSS_SELECTOR, 'button.edit').click()
-time.sleep(2)
+loop = 1
+for key, value in dashboard_urls.items():
+    driver.get(value)
+    if key == 'Daily Driver':
+        log_in()
+    if loop > 1:
+        time.sleep(10)
+    # switch iframe
+    iframe = driver.find_element(By.CSS_SELECTOR, "iframe[title='dashboard']")
+    driver.switch_to.frame(iframe)
+    # edit
+    driver.find_element(By.CSS_SELECTOR, 'button.edit').click()
+    time.sleep(2)
 
-# update picklist 1
-update_picklist(1, "C:\\Users\\asorensen\\OneDrive - CVRx Inc\\Projects\\20240319_update_sfdc_dashboard_dropdowns\\A "
-                   "through L.csv")
+    # update picklist 1
+    update_picklist(1, "C:\\Users\\asorensen\\OneDrive - CVRx "
+                       "Inc\\Projects\\20240319_update_sfdc_dashboard_dropdowns\\A through L.csv")
 
-# update picklist 2
-update_picklist(2, "C:\\Users\\asorensen\\OneDrive - CVRx Inc\\Projects\\20240319_update_sfdc_dashboard_dropdowns\\M "
-                   "through Z.csv")
-
-print("Remember to hit save at the top of the dashboard!!")
+    # update picklist 2
+    update_picklist(2, "C:\\Users\\asorensen\\OneDrive - CVRx "
+                       "Inc\\Projects\\20240319_update_sfdc_dashboard_dropdowns\\M through Z.csv")
+    save = driver.find_element(By.CSS_SELECTOR, 'button.save')
+    save.click()
+    loop += 1
+    time.sleep(10)
