@@ -85,7 +85,7 @@ for key, value in dashboard_urls.items():
     if key == 'Daily Driver':
         log_in()
     if loop > 1:
-        time.sleep(15)
+        time.sleep(20)
 
     # switch iframe
     iframe = driver.find_element(By.CSS_SELECTOR, "iframe[title='dashboard']")
@@ -96,12 +96,10 @@ for key, value in dashboard_urls.items():
     time.sleep(2)
 
     # update picklist 1
-    update_picklist(1, "C:\\Users\\asorensen\\OneDrive - CVRx "
-                       "Inc\\Projects\\20240319_update_sfdc_dashboard_dropdowns\\A through L.csv")
+    update_picklist(1, "./A through L.csv")
 
     # update picklist 2
-    update_picklist(2, "C:\\Users\\asorensen\\OneDrive - CVRx "
-                       "Inc\\Projects\\20240319_update_sfdc_dashboard_dropdowns\\M through Z.csv")
+    update_picklist(2, "./M through Z.csv")
     save = driver.find_element(By.CSS_SELECTOR, 'button.save')
     save.click()
     loop += 1
