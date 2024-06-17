@@ -66,26 +66,28 @@ def update_picklist(num, filepath):
 
 
 def log_in():
+    print("Logging in...")
     log_in_button = driver.find_element(By.XPATH, '//*[@id="idp_section_buttons"]/button')
     log_in_button.click()
     time.sleep(2)
     username_field = driver.find_element(By.ID, 'i0116')
     username_field.send_keys(username)
     driver.find_element(By.ID, 'idSIButton9').click()
-    time.sleep(2)
-    password_field = driver.find_element(By.ID, 'i0118')
-    password_field.send_keys(password)
-    driver.find_element(By.ID, 'idSIButton9').click()
-    time.sleep(25)
+    # time.sleep(2)
+    # password_field = driver.find_element(By.ID, 'i0118')
+    # password_field.send_keys(password)
+    # driver.find_element(By.ID, 'idSIButton9').click()
+    time.sleep(40)
 
 
 loop = 1
 for key, value in dashboard_urls.items():
+    print(f"Opening {key} Dashboard...")
     driver.get(value)
     if key == 'Daily Driver':
         log_in()
     if loop > 1:
-        time.sleep(20)
+        time.sleep(40)
 
     # switch iframe
     iframe = driver.find_element(By.CSS_SELECTOR, "iframe[title='dashboard']")
@@ -96,9 +98,11 @@ for key, value in dashboard_urls.items():
     time.sleep(2)
 
     # update picklist 1
+    print("Updating last names A through L...")
     update_picklist(1, "./A through L.csv")
 
     # update picklist 2
+    print("Updating last names M through Z...")
     update_picklist(2, "./M through Z.csv")
     save = driver.find_element(By.CSS_SELECTOR, 'button.save')
     save.click()

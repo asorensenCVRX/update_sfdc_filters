@@ -11,23 +11,20 @@ FROM
             qryRoster
         WHERE
             STATUS = 'ACTIVE'
-            AND ROLE IN('REP')
-            AND DOT IS NULL --UNION ALL 
-            --SELECT *
-            --FROM qryRoster
-            --WHERE STATUS = 'ACTIVE' AND ROLE IN('FCE')
-            --AND REP_EMAIL IN (
-            --Select distinct OPP_OWNER_EMAIL
-            --FROM qryOpps a WHERE A.OPP_STATUS = 'OPEN'
-            --)
+            AND ROLE = 'REP'
+            AND (
+                DOT IS NULL
+                OR DOT > GETDATE()
+            )
     ) AS A
     LEFT JOIN sfdcUser AS B ON A.REP_EMAIL = B.EMAIL
 UNION
+ALL
 SELECT
     DISTINCT 'FCE',
     AM_FOR_CREDIT,
     b.LNAME_REP,
-    AM_FOR_CREDIT_EMAIL --A.OPP_OWNER_NAME, a.OPP_OWNER_LNAME, OPP_OWNER_EMAIL
+    AM_FOR_CREDIT_EMAIL
 FROM
     qryOpps A
     LEFT JOIN (
