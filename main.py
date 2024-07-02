@@ -6,6 +6,13 @@ import os
 import time
 import pandas as pd
 
+# run database.py
+with open("database.py") as f:
+    code = f.read()
+    exec(code)
+
+input("stop lol")
+
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option("detach", True)
 driver = webdriver.Chrome(options=chrome_options)
