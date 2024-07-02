@@ -5,13 +5,24 @@ from selenium.common.exceptions import NoSuchElementException, StaleElementRefer
 import os
 import time
 import pandas as pd
+from pprint import pprint
+
 
 # run database.py
 with open("database.py") as f:
     code = f.read()
     exec(code)
 
-input("stop lol")
+
+def create_csv(excel_path, csv_path1, csv_path2):
+    df = pd.read_excel(excel_path, sheet_name=0)
+    filtered_df1 = df[df['LNAME_REP'].str.startswith(tuple(map(chr, range(ord('A'), ord('M')))))]
+    filtered_df1.to_csv(csv_path1, index=False)
+    filtered_df2 = df[df['LNAME_REP'].str.startswith(tuple(map(chr, range(ord('M'), ord('Z') + 1))))]
+    filtered_df2.to_csv(csv_path2, index=False)
+
+
+create_csv("./names.xlsx", "./A through L.csv", "./M through Z.csv")
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option("detach", True)
