@@ -8,10 +8,10 @@ import pandas as pd
 from pprint import pprint
 
 
-# run database.py
-with open("database.py") as f:
-    code = f.read()
-    exec(code)
+# # run database.py
+# with open("database.py") as f:
+#     code = f.read()
+#     exec(code)
 
 
 def create_csv(excel_path, csv_path1, csv_path2):
@@ -21,8 +21,6 @@ def create_csv(excel_path, csv_path1, csv_path2):
     filtered_df2 = df[df['LNAME_REP'].str.startswith(tuple(map(chr, range(ord('M'), ord('Z') + 1))))]
     filtered_df2.to_csv(csv_path2, index=False)
 
-
-create_csv("./names.xlsx", "./A through L.csv", "./M through Z.csv")
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option("detach", True)
@@ -87,7 +85,7 @@ def log_in():
     print("Logging in...")
     log_in_button = driver.find_element(By.XPATH, '//*[@id="idp_section_buttons"]/button')
     log_in_button.click()
-    time.sleep(2)
+    time.sleep(5)
     username_field = driver.find_element(By.ID, 'i0116')
     username_field.send_keys(username)
     driver.find_element(By.ID, 'idSIButton9').click()
@@ -98,31 +96,37 @@ def log_in():
     time.sleep(40)
 
 
-loop = 1
-for key, value in dashboard_urls.items():
-    print(f"Opening {key} Dashboard...")
-    driver.get(value)
-    if key == 'Daily Driver':
-        log_in()
-    if loop > 1:
-        time.sleep(40)
+def run_selenium():
+    loop = 1
+    for key, value in dashboard_urls.items():
+        print(f"Opening {key} Dashboard...")
+        driver.get(value)
+        if key == 'Daily Driver':
+            log_in()
+        if loop > 1:
+            time.sleep(40)
 
-    # switch iframe
-    iframe = driver.find_element(By.CSS_SELECTOR, "iframe[title='dashboard']")
-    driver.switch_to.frame(iframe)
+        # switch iframe
+        iframe = driver.find_element(By.CSS_SELECTOR, "iframe[title='dashboard']")
+        driver.switch_to.frame(iframe)
 
-    # edit
-    driver.find_element(By.CSS_SELECTOR, 'button.edit').click()
-    time.sleep(2)
+        # edit
+        driver.find_element(By.CSS_SELECTOR, 'button.edit').click()
+        time.sleep(2)
 
-    # update picklist 1
-    print("Updating last names A through L...")
-    update_picklist(1, "./A through L.csv")
+        # update picklist 1
+        print("Updating last names A through L...")
+        update_picklist(1, "./A through L.csv")
 
-    # update picklist 2
-    print("Updating last names M through Z...")
-    update_picklist(2, "./M through Z.csv")
-    save = driver.find_element(By.CSS_SELECTOR, 'button.save')
-    save.click()
-    loop += 1
-    time.sleep(10)
+        # update picklist 2
+        print("Updating last names M through Z...")
+        update_picklist(2, "./M through Z.csv")
+        save = driver.find_element(By.CSS_SELECTOR, 'button.save')
+        save.click()
+        loop += 1
+        time.sleep(10)
+
+
+# RUN SCRIPT HERE
+# create_csv("./names.xlsx", "./A through L.csv", "./M through Z.csv")
+run_selenium()
