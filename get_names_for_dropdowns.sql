@@ -18,6 +18,8 @@ FROM
             )
     ) AS A
     LEFT JOIN sfdcUser AS B ON A.REP_EMAIL = B.EMAIL
+WHERE
+    NAME <> 'xAndrew xLord'
 UNION
 ALL
 SELECT

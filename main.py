@@ -8,19 +8,27 @@ import pandas as pd
 from pprint import pprint
 
 
-# # run database.py
-# with open("database.py") as f:
-#     code = f.read()
-#     exec(code)
+def get_names():
+    """Runs the database.py module to create a "names.xlsx" file."""
+    with open("database.py") as f:
+        code = f.read()
+        exec(code, globals())  # Executes in global scope
 
 
 def create_csv(excel_path, csv_path1, csv_path2):
+    """Runs the get_names() function to create a "names.xlsx" file, then splits the file into 2 .csv files that
+    contain last names A through M, and N through Z."""
+    get_names()
     df = pd.read_excel(excel_path, sheet_name=0)
     filtered_df1 = df[df['LNAME_REP'].str.startswith(tuple(map(chr, range(ord('A'), ord('M')))))]
     filtered_df1.to_csv(csv_path1, index=False)
     filtered_df2 = df[df['LNAME_REP'].str.startswith(tuple(map(chr, range(ord('M'), ord('Z') + 1))))]
     filtered_df2.to_csv(csv_path2, index=False)
 
+
+prompt = input("Refresh .csv files? Y/N\n")
+if prompt.lower() == 'y':
+    create_csv("./names.xlsx", "./A through L.csv", "./M through Z.csv")
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option("detach", True)
@@ -97,6 +105,8 @@ def log_in():
 
 
 def run_selenium():
+    """Runs log_in(), update_picklist(), delete_current_list_items(), and add_new_list_items() for each URL in the
+    dashboard_urls dictionary above."""
     loop = 1
     for key, value in dashboard_urls.items():
         print(f"Opening {key} Dashboard...")
@@ -127,6 +137,4 @@ def run_selenium():
         time.sleep(10)
 
 
-# RUN SCRIPT HERE
-# create_csv("./names.xlsx", "./A through L.csv", "./M through Z.csv")
 run_selenium()
