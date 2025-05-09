@@ -38,12 +38,14 @@ username = os.environ['USERNAME']
 password = os.environ['PASSWORD']
 
 dashboard_urls = {
-    'Daily Driver': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01Z4u000000WX7lEAG/view',
-    'Regional': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01Z4u000000WX9IEAW/view?queryScope=userFolders',
-    'Regional AM Detail': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01Z4u000001OCgqEAG/view?queryScope'
-                          '=userFolders',
-    'Commercial Business Activity': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01Z4u000001ai1AEAQ/view',
-
+    'Daily Driver': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01ZUY000004SCK62AO/view?queryScope'
+                    '=userFolders',
+    'US Regional AM Dashboard': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01ZUY000004vfs92AA/view'
+                                '?queryScope=userFolders',
+    'US Regional TM Detail Dashboard': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01ZUY000004SCK82AO/view'
+                                       '?queryScope=userFolders',
+    'US Commercial Business Activity': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01ZUY000004vcPd2AI/view'
+                                       '?queryScope=userFolders'
 }
 
 
