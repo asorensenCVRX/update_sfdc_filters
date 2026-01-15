@@ -44,8 +44,9 @@ dashboard_urls = {
                                 '?queryScope=userFolders',
     'US Regional TM Detail Dashboard': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01ZUY000004SCK82AO/view'
                                        '?queryScope=userFolders',
-    'US Commercial Business Activity': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01ZUY000004vcPd2AI/view'
-                                       '?queryScope=userFolders'
+    'Daily Driver (Regional Director Folder)': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01ZUY000007PoQ'
+                                               'b2AK/view?queryScope=userFolders',
+    'CPAS': 'https://cvrx.lightning.force.com/lightning/r/Dashboard/01Z4u000001OCfTEAW/view?queryScope=userFolders'
 }
 
 
@@ -76,7 +77,6 @@ def add_new_list_items(file_path):
 def update_picklist(num, filepath):
     """num needs to equal 1 or 2: 1 if you are editing A-L and 2 if you are editing M-Z. Filepath is for the csv file
     with the names you are uploading."""
-    num += 1
     owner_dropdown_container = driver.find_element(By.CLASS_NAME, f'widget-container_{num}')
     pencil_button = owner_dropdown_container.find_element(By.CSS_SELECTOR, 'button.editFilter')
     pencil_button.send_keys(Keys.ENTER)
@@ -109,15 +109,7 @@ def log_in():
 def run_selenium():
     """Runs log_in(), update_picklist(), delete_current_list_items(), and add_new_list_items() for each URL in the
     dashboard_urls dictionary above."""
-    loop = 1
-    for key, value in dashboard_urls.items():
-        print(f"Opening {key} Dashboard...")
-        driver.get(value)
-        if key == 'Daily Driver':
-            log_in()
-        if loop > 1:
-            time.sleep(40)
-
+    def widget_container(num1, num2):
         # switch iframe
         iframe = driver.find_element(By.CSS_SELECTOR, "iframe[title='dashboard']")
         driver.switch_to.frame(iframe)
@@ -128,15 +120,28 @@ def run_selenium():
 
         # update picklist 1
         print("Updating last names A through L...")
-        update_picklist(1, "./A through L.csv")
+        update_picklist(num1, "./A through L.csv")
 
         # update picklist 2
         print("Updating last names M through Z...")
-        update_picklist(2, "./M through Z.csv")
+        update_picklist(num2, "./M through Z.csv")
         save = driver.find_element(By.CSS_SELECTOR, 'button.save')
         save.click()
-        loop += 1
         time.sleep(10)
 
+    loop = 0
+    for key, value in dashboard_urls.items():
+        print(f"Opening {key} Dashboard...")
+        driver.get(value)
+        if loop == 0:
+            log_in()
+        else:
+            time.sleep(40)
+        loop += 1
+
+        if key == 'CPAS':
+            widget_container(1, 2)
+        else:
+            widget_container(2,3)
 
 run_selenium()

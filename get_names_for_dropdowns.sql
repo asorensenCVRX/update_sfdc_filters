@@ -1,47 +1,12 @@
 SELECT
-    A.ROLE,
-    B.NAME,
-    A.LNAME_REP,
-    A.REP_EMAIL
+    DISTINCT [ROLE],
+    U.NAME,
+    LNAME_REP,
+    SFDC_OWNER AS REP_EMAIL
 FROM
-    (
-        SELECT
-            *
-        FROM
-            qryRoster
-        WHERE
-            STATUS = 'ACTIVE'
-            AND ROLE = 'REP'
-            AND (
-                DOT IS NULL
-                OR DOT > GETDATE()
-            )
-    ) AS A
-    LEFT JOIN sfdcUser AS B ON A.REP_EMAIL = B.EMAIL
-WHERE
-    NAME <> 'xAndrew xLord'
-ORDER BY A.LNAME_REP
--- UNION
--- ALL
--- SELECT
---     DISTINCT 'FCE',
---     AM_FOR_CREDIT,
---     b.LNAME_REP,
---     AM_FOR_CREDIT_EMAIL
--- FROM
---     qryOpps A
---     LEFT JOIN (
---         SELECT
---             REP_EMAIL,
---             LNAME_REP
---         FROM
---             qryRoster
---         WHERE
---             STATUS = 'ACTIVE'
---             AND ROLE IN('FCE')
---     ) b ON A.AM_FOR_CREDIT_EMAIL = B.REP_EMAIL
--- WHERE
---     B.REP_EMAIL IS NOT NULL
---     AND OPP_STATUS <> 'cancelled'
--- ORDER BY
---     LNAME_REP
+    qryDE_FACTO_ASSIGNMENTS D
+    LEFT JOIN sfdcUser U ON D.SFDC_OWNER = U.EMAIL
+    INNER JOIN qryRoster R ON D.SFDC_OWNER = R.REP_EMAIL
+    AND [isLATEST?] = 1
+ORDER BY
+    LNAME_REP
